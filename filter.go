@@ -98,7 +98,7 @@ func (fhi *FileHeader) String() string {
 func main() {
 	fmt.Println("hello world")
 	file, err := os.Open("../images/courtyard.bmp")
-	newFileName := "../images/filtered_image.bmp"
+	newFileName := "../filtered_image.bmp"
 	checkErr(err)
 	defer file.Close()
 
