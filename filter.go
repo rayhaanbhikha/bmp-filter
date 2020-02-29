@@ -24,9 +24,16 @@ func main() {
 	// // numbers = append([]int{9, 8, 7}, numbers...)
 	// fmt.Println(numbers)
 	// fmt.Println(revNums)
+	if len(os.Args[1:]) < 3 {
+		fmt.Println("incorrect args provided")
+		os.Exit(1)
+	}
 
-	file, err := os.Open("../images/yard.bmp")
-	newFileName := "../filtered_image.bmp"
+	// filter := os.Args[1]
+	fileName := os.Args[2]
+	newFileName := os.Args[3]
+
+	file, err := os.Open(fileName)
 	checkErr(err)
 	defer file.Close()
 
