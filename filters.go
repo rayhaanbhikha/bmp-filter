@@ -1,20 +1,17 @@
 package main
 
-func reflectFilter(height, width int, image [][]byte) []byte {
-	newImage := make([]byte, 0)
-	for i := 0; i < height; i++ {
-		bytesInRow := width * 3
-		for j := 0; j < bytesInRow/2; j++ {
-			image[i][j], image[i][bytesInRow-1-j] = image[i][bytesInRow-1-j], image[i][j]
+func reflectFilter(pixels [][]Pixel) (newPixels []Pixel) {
+	for _, pixelRow := range pixels {
+		n := len(pixelRow)
+		for i := 0; i < n/2; i++ {
+			pixelRow[i], pixelRow[n-1-i] = pixelRow[n-1-i], pixelRow[i]
 		}
-		for k := 0; k <= bytesInRow-3; k += 3 {
-			newImage = append(newImage, image[i][k+2], image[i][k+1], image[i][k])
-		}
+		newPixels = append(newPixels, pixelRow...)
 	}
-	return newImage
+	return
 }
 
-func greyScaleFilter(height, width int, pixels [][]Pixel) (newPixels []Pixel) {
+func greyScaleFilter(pixels [][]Pixel) (newPixels []Pixel) {
 	for _, pixelRow := range pixels {
 		for _, pixel := range pixelRow {
 			avg := (pixel.b + pixel.g + pixel.r) / 3

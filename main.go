@@ -29,9 +29,9 @@ func main() {
 	// filter := os.Args[1]
 	// fileName := os.Args[2]
 	// newFileName := os.Args[3]
-	// filter := os.Args[1]
+	filter := "r"
 	fileName := "./images/courtyard.bmp"
-	newFileName := "./filtered-images/g-courtyard.bmp"
+	newFileName := "./filtered-images/r-courtyard.bmp"
 
 	file, err := os.Open(fileName)
 	checkErr(err)
@@ -54,9 +54,13 @@ func main() {
 	image := make([][]Pixel, 0)
 	offset := int64(bitMapHeader.startingAddress)
 
+	// width 600pixels.
+	// each pixel made of 24 bits or 3 bytes.
+	// each row is 600 * 3 = 1800 bytes
+	// we have 400 pixels in height. so 400 * 1800 = 720000 bytes
 	for {
 		// read row of bytes
-		bytesRead := make([]byte, bitMapInfoHeader.pWidth)
+		bytesRead := make([]byte, bitMapInfoHeader.pWidth*3)
 		n, err := file.ReadAt(bytesRead, offset)
 		if err == io.EOF {
 			fmt.Println("image data read")
@@ -67,41 +71,20 @@ func main() {
 		offset += int64(n)
 	}
 
-	newPixels := greyScaleFilter(int(bitMapInfoHeader.pHeight), int(bitMapInfoHeader.pWidth), image)
+	var newPixels []Pixel
+
+	switch filter {
+	case "-r":
+		newPixels = reflectFilter(image)
+	case "-g":
+		newPixels = greyScaleFilter(image)
+	case "-b":
+		// newPixels = blurFilter(, image)
+	default:
+		fmt.Printf("filter %s does not exist\n", filter)
+		os.Exit(1)
+	}
 	newImageData := pixelsToBytes(newPixels)
-
-	// image := make([][]byte, bitMapInfoHeader.pHeight)
-
-	// // width 600pixels.
-	// // each pixel made of 24 bits or 3 bytes.
-	// // each row is 600 * 3 = 1800 bytes
-	// // we have 400 pixels in height. so 400 * 1800 = 720000 bytes
-
-	// var startingOffset uint32 = bitMapHeader.startingAddress
-
-	// for i := range image {
-	// 	var rowBytes uint32 = bitMapInfoHeader.pWidth * 3
-	// 	data := make([]byte, rowBytes)
-	// 	_, err := file.ReadAt(data, int64(startingOffset))
-	// 	checkErr(err)
-	// 	image[i] = append(image[i], data...)
-	// 	startingOffset += rowBytes
-	// }
-
-	// var newImageData []byte
-
-	// switch filter {
-	// case "-r":
-	// 	newImageData = reflectFilter(int(bitMapInfoHeader.pHeight), int(bitMapInfoHeader.pWidth), image)
-	// case "-g":
-	// 	newImageData = greyScaleFilter(int(bitMapInfoHeader.pHeight), int(bitMapInfoHeader.pWidth), image)
-	// case "-b":
-	// 	newImageData = blurFilter(int(bitMapInfoHeader.pHeight), int(bitMapInfoHeader.pWidth), image)
-	// default:
-	// 	fmt.Printf("filter %s does not exist\n", filter)
-	// 	os.Exit(1)
-	// }
-
 	newImageBytes := append(bitMapHeader.data, bitMapInfoHeader.data...)
 	newImageBytes = append(newImageBytes, newImageData...)
 
