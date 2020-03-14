@@ -14,16 +14,12 @@ func reflectFilter(height, width int, image [][]byte) []byte {
 	return newImage
 }
 
-func greyScaleFilter(height, width int, image [][]byte) []byte {
-	newImage := make([]byte, 0)
-	for i := 0; i < height; i++ {
-		bytesInRow := width * 3
-		for k := 0; k <= bytesInRow-3; k += 3 {
-			avg := (image[i][k+2] + image[i][k+1] + image[i][k]) / 3
-			newImage = append(newImage, avg, avg, avg)
-		}
+func greyScaleFilter(height, width int, pixels []Pixel) (newPixels []Pixel) {
+	for _, pixel := range pixels {
+		avg := (pixel.b + pixel.g + pixel.r) / 3
+		newPixels = append(newPixels, Pixel{b: avg, g: avg, r: avg})
 	}
-	return newImage
+	return
 }
 
 type vector struct {
