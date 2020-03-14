@@ -14,10 +14,12 @@ func reflectFilter(height, width int, image [][]byte) []byte {
 	return newImage
 }
 
-func greyScaleFilter(height, width int, pixels []Pixel) (newPixels []Pixel) {
-	for _, pixel := range pixels {
-		avg := (pixel.b + pixel.g + pixel.r) / 3
-		newPixels = append(newPixels, Pixel{b: avg, g: avg, r: avg})
+func greyScaleFilter(height, width int, pixels [][]Pixel) (newPixels []Pixel) {
+	for _, pixelRow := range pixels {
+		for _, pixel := range pixelRow {
+			avg := (pixel.b + pixel.g + pixel.r) / 3
+			newPixels = append(newPixels, Pixel{b: avg, g: avg, r: avg})
+		}
 	}
 	return
 }

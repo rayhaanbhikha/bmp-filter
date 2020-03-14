@@ -51,18 +51,19 @@ func main() {
 	}
 
 	// collect bytes into pixels
-	image := make([]Pixel, 0)
+	image := make([][]Pixel, 0)
 	offset := int64(bitMapHeader.startingAddress)
 
 	for {
-		bytesRead := make([]byte, 3)
+		// read row of bytes
+		bytesRead := make([]byte, bitMapInfoHeader.pWidth)
 		n, err := file.ReadAt(bytesRead, offset)
 		if err == io.EOF {
 			fmt.Println("image data read")
 			break
 		}
 		checkErr(err)
-		image = append(image, Pixel{bytesRead[0], bytesRead[1], bytesRead[2]})
+		image = append(image, bytesToPixels(bytesRead))
 		offset += int64(n)
 	}
 
@@ -114,6 +115,13 @@ func main() {
 func pixelsToBytes(pixels []Pixel) (bytes []byte) {
 	for _, pixel := range pixels {
 		bytes = append(bytes, pixel.b, pixel.g, pixel.r)
+	}
+	return
+}
+
+func bytesToPixels(bytes []byte) (pixels []Pixel) {
+	for i := 0; i < len(bytes); i += 3 {
+		pixels = append(pixels, Pixel{bytes[i], bytes[i+1], bytes[i+2]})
 	}
 	return
 }
