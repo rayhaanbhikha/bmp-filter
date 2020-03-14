@@ -64,6 +64,8 @@ func main() {
 		newImageData = reflectFilter(int(bitMapInfoHeader.pHeight), int(bitMapInfoHeader.pWidth), image)
 	case "-g":
 		newImageData = greyScaleFilter(int(bitMapInfoHeader.pHeight), int(bitMapInfoHeader.pWidth), image)
+	case "-b":
+		newImageData = blurFilter(int(bitMapInfoHeader.pHeight), int(bitMapInfoHeader.pWidth), image)
 	default:
 		fmt.Printf("filter %s does not exist\n", filter)
 		os.Exit(1)
