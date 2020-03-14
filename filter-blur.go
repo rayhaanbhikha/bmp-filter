@@ -1,26 +1,5 @@
 package main
 
-func reflectFilter(pixels [][]Pixel) (newPixels []Pixel) {
-	for _, pixelRow := range pixels {
-		n := len(pixelRow)
-		for i := 0; i < n/2; i++ {
-			pixelRow[i], pixelRow[n-1-i] = pixelRow[n-1-i], pixelRow[i]
-		}
-		newPixels = append(newPixels, pixelRow...)
-	}
-	return
-}
-
-func greyScaleFilter(pixels [][]Pixel) (newPixels []Pixel) {
-	for _, pixelRow := range pixels {
-		for _, pixel := range pixelRow {
-			avg := (pixel.b + pixel.g + pixel.r) / 3
-			newPixels = append(newPixels, Pixel{b: avg, g: avg, r: avg})
-		}
-	}
-	return
-}
-
 type vector struct {
 	x, y int
 }
@@ -38,22 +17,8 @@ func getAverage(image [][]byte) [][]byte {
 	return newImage
 }
 
-func blurFilter(height, width int, image [][]byte) []byte {
-
-	// compute blur value of each pixel
-	blurPixelImage := make([]byte, 0)
-	maxI := len(image) - 1
-	maxJ := len(image[0])
-	f := computeAvgPixel(maxI, maxJ, image)
-
-	for irow := range image {
-		for jcol := range image[irow] {
-			avgPixelValue := f(irow, jcol)
-			blurPixelImage = append(blurPixelImage, avgPixelValue)
-		}
-	}
-
-	return blurPixelImage
+func blurFilter(pixels [][]Pixel) (newPixels []Pixel) {
+	return
 }
 
 func computeAvgPixel(maxI, maxJ int, image [][]byte) func(int, int) byte {
