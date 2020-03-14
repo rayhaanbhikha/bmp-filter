@@ -4,59 +4,63 @@ type vector struct {
 	x, y int
 }
 
-func getAverage(image [][]byte) [][]byte {
-	newImage := make([][]byte, 0)
-	for _, row := range image {
-		newRow := make([]byte, 0)
-		for j := 0; j < len(row); j += 3 {
-			avg := (row[j] + row[j+1] + row[j+2]) / 3
-			newRow = append(newRow, avg)
-		}
-		newImage = append(newImage, newRow)
-	}
-	return newImage
-}
-
 func blurFilter(pixels [][]Pixel) (newPixels []Pixel) {
+	f := computeAvgPixel(pixels)
+	for i, row := range pixels {
+		for j := range row {
+			newPixels = append(newPixels, f(i, j))
+		}
+	}
 	return
 }
 
-func computeAvgPixel(maxI, maxJ int, image [][]byte) func(int, int) byte {
-	return func(i, j int) byte {
+func computeAvgPixel(image [][]Pixel) func(int, int) Pixel {
+	maxI := len(image) - 1
+	maxJ := len(image[0]) - 1
+	return func(i, j int) Pixel {
 		var vectors []vector
 		switch {
 		// topLeft corner
-		case i == 0 && j <= 2:
-			vectors = []vector{{0, 0}, {3, 0}, {3, 1}, {0, 1}}
+		case i == 0 && j == 0:
+			vectors = []vector{{0, 0}, {1, 0}, {1, 1}, {0, 1}}
 			// topRight corner
-		case i == 0 && j >= maxJ-3:
-			vectors = []vector{{0, 0}, {0, 1}, {-3, 1}, {-3, 0}}
+		case i == 0 && j == maxJ:
+			vectors = []vector{{0, 0}, {0, 1}, {-1, 1}, {-1, 0}}
 			// bottom left corner
-		case i == maxI && j <= 2:
-			vectors = []vector{{0, 0}, {0, -1}, {3, -1}, {3, 0}}
+		case i == maxI && j == 0:
+			vectors = []vector{{0, 0}, {0, -1}, {1, -1}, {1, 0}}
 			// bottom right corner
-		case i == maxI && j >= maxJ-3:
-			vectors = []vector{{0, 0}, {0, -1}, {-3, 0}, {-3, -1}}
+		case i == maxI && j == maxJ:
+			vectors = []vector{{0, 0}, {0, -1}, {-1, 0}, {-1, -1}}
 			// top row
 		case i == 0:
-			vectors = []vector{{0, 0}, {3, 0}, {3, 1}, {0, 1}, {-3, 1}, {-3, 0}}
+			vectors = []vector{{0, 0}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}}
 			// bottom row
 		case i == maxI:
-			vectors = []vector{{0, 0}, {0, -1}, {3, -1}, {3, 0}, {-3, 0}, {-3, -1}}
+			vectors = []vector{{0, 0}, {0, -1}, {1, -1}, {1, 0}, {-1, 0}, {-1, -1}}
 			// first column
-		case j <= 2:
-			vectors = []vector{{0, 0}, {0, -1}, {3, -1}, {3, 0}, {3, 1}, {0, 1}}
+		case j == 0:
+			vectors = []vector{{0, 0}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}}
 			// second column
-		case j >= maxJ-3:
-			vectors = []vector{{0, 0}, {0, -1}, {0, 1}, {-3, 1}, {-3, 0}, {-3, -1}}
+		case j == maxJ:
+			vectors = []vector{{0, 0}, {0, -1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}}
 			// center
 		default:
-			vectors = []vector{{0, 0}, {0, -1}, {3, -1}, {3, 0}, {3, 1}, {0, 1}, {-3, 1}, {-3, 0}, {-3, -1}}
+			vectors = []vector{{0, 0}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}}
 		}
-		var avg byte
+		var avgB, avgG, avgR byte
+
 		for _, v := range vectors {
-			avg += image[i+v.y][j+v.x]
+			newI, newJ := i+v.y, j+v.x
+			avgB += image[newI][newJ].b
+			avgG += image[newI][newJ].g
+			avgR += image[newI][newJ].r
 		}
-		return avg / byte(len(vectors))
+
+		b := avgB / byte(len(vectors))
+		g := avgG / byte(len(vectors))
+		r := avgR / byte(len(vectors))
+
+		return Pixel{b, g, r}
 	}
 }

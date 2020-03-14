@@ -18,20 +18,23 @@ type Pixel struct {
 
 func main() {
 
-	if err := os.Mkdir("filtered-images", os.FileMode(0777)); os.IsExist(err) {
+	if len(os.Args[1:]) < 3 {
+		fmt.Println("incorrect args provided")
+		os.Exit(1)
+	}
+
+	filter := os.Args[1]
+	fileName := os.Args[2]
+	newFileName := os.Args[3]
+
+	newDir := "filtered-images"
+	if err := os.Mkdir(newDir, os.FileMode(0777)); os.IsExist(err) {
 		fmt.Println("directory already exists")
 	}
-	// if len(os.Args[1:]) < 3 {
-	// 	fmt.Println("incorrect args provided")
-	// 	os.Exit(1)
-	// }
 
-	// filter := os.Args[1]
-	// fileName := os.Args[2]
-	// newFileName := os.Args[3]
-	filter := "r"
-	fileName := "./images/courtyard.bmp"
-	newFileName := "./filtered-images/r-courtyard.bmp"
+	// filter := "-b"
+	// fileName := "./images/courtyard.bmp"
+	// newFileName := "./filtered-images/b-courtyard.bmp"
 
 	file, err := os.Open(fileName)
 	checkErr(err)
@@ -79,7 +82,7 @@ func main() {
 	case "-g":
 		newPixels = greyScaleFilter(image)
 	case "-b":
-		// newPixels = blurFilter(, image)
+		newPixels = blurFilter(image)
 	default:
 		fmt.Printf("filter %s does not exist\n", filter)
 		os.Exit(1)
@@ -104,7 +107,7 @@ func pixelsToBytes(pixels []Pixel) (bytes []byte) {
 
 func bytesToPixels(bytes []byte) (pixels []Pixel) {
 	for i := 0; i < len(bytes); i += 3 {
-		pixels = append(pixels, Pixel{bytes[i], bytes[i+1], bytes[i+2]})
+		pixels = append(pixels, Pixel{b: bytes[i], g: bytes[i+1], r: bytes[i+2]})
 	}
 	return
 }
